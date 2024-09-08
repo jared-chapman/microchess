@@ -491,7 +491,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lightSquareSprite: {fileID: 21300000, guid: 9a84886917b6ca940a7a63df8179958a, type: 3}
   darkSquareSprite: {fileID: 21300000, guid: 3e677f0124735074098eb897011032b1, type: 3}
-  textController: {fileID: 0}
+  textController: {fileID: 2128319462}
 --- !u!61 &895984479
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -823,8 +823,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 300, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: 360, y: 0}
+  m_SizeDelta: {x: 200, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2128319461
 GameObject:

@@ -14,6 +14,10 @@ public class scr_controller_main : MonoBehaviour
     public GameObject squarePrefab;
     public GameObject piecePrefab;
     public TextController textController;
+    public bool debug = true;
+    private int activePlayer = 1;
+    private PieceData activePiece = null;
+    private string[] moveRules = new string[] { "cannotMoveOffBoard" };
 
 
     // Start is called before the first frame update
@@ -55,6 +59,12 @@ public class scr_controller_main : MonoBehaviour
             board = buildGameBoard(w, h, piecesData);
             showBoard(board);
             showPieces(piecesData);
+        }
+
+        // if a square is clicked
+        if (Input.GetMouseButtonDown(0))
+        {
+            handleSquareClick();
         }
 
         // if there is no active piece
@@ -235,4 +245,79 @@ public class scr_controller_main : MonoBehaviour
         }
         return null;
     }
+
+/// <summary>
+/// handles the click event on a square
+/// </summary>
+    private void handleSquareClick()
+    {
+        Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
+        if (hit.collider != null)
+        {
+            scr_square_prefab squarePrefab = hit.collider.gameObject.GetComponent<scr_square_prefab>();
+            SquareData squareData = squarePrefab.squareData;
+            PieceData pieceData = squareData.pieceData;
+            if (squareData == null) return;
+
+            if (debug) {
+                string debugString = squareData.squareName;
+                if (pieceData.pieceName != null)
+                {
+                    debugString += "\n" + pieceData.pieceName;
+                }
+                textController.UpdateText(debugString);
+            }
+            // if there is no active piece and this square is empty, do nothing
+            // if there is no active piece and the piece on this square belongs to the opponent, do nothing
+            if (activePiece == null)
+            {
+                if (pieceData == null) {
+                    Debug.Log("no piece data"); 
+                    return;
+                }
+                Debug.Log("277");
+                if (pieceData.pieceColor == "white" && activePlayer != 1)
+                {
+                    Debug.Log("not current players turn");
+                    return;
+                }
+                if (pieceData.pieceColor == "black" && activePlayer != -1)
+                {
+                    Debug.Log("not current players turn");
+                    return;
+                }
+            }
+            // if there is an active piece and this square is not valid, reset the active piece
+
+            // if there is no active piece and the piece on this square belongs to the active player, make this piece the active piece
+            // if (activePiece == null)
+            // {
+                Debug.Log("Setting active piece to " + pieceData.pieceName);
+                pieceData.printPieceData();
+                setActivePiece(pieceData);
+            // }
+            // if there is an active piece and this square is valid, move the active piece to this square
+
+
+        }
+    }
+
+    private void setActivePiece(PieceData piece)
+    {
+        if (piece != null)
+        {
+            Debug.Log("Setting active piece to " + piece.pieceName);
+            activePiece = piece;
+            List<List<int[]>> rawMoveset = piece.currentMoveset;
+            List<List<int[]>> validMoveset = MoveRules.applyRules(rawMoveset, moveRules);
+        } 
+        else 
+        {
+            Debug.Log("Piece is null");
+            activePiece = null;
+        }
+
+    }
+    
 }

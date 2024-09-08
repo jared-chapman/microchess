@@ -20,34 +20,6 @@ public class scr_square_prefab : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // on mouse click on this object
-        if (Input.GetMouseButtonDown(0)) // Left mouse button click
-        {
-            // Convert mouse position to world position in 2D
-            Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-            // Cast a ray at the mouse position
-            RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
-            // Debug.Log("here");
-
-            // Check if the ray hit any object
-            if (hit.collider != null)
-            {
-
-                // Check if the object hit is the one this script is attached to
-                if (hit.transform == transform)
-                {
-                    Debug.Log("Clicked on " + squareData.squareName + "With piece: " + squareData.pieceData.pieceName);
-                    // Run your custom logic here
-                    string debugString = squareData.squareName;
-                    if (squareData.pieceData.pieceName != null)
-                    {
-                        debugString += "\n" + squareData.pieceData.pieceName;
-                    }
-                    textController.UpdateText(debugString);
-                }
-            }
-        }
         
     }
 
