@@ -17,13 +17,13 @@ public class scr_controller_main : MonoBehaviour
     public bool debug = true;
     private int activePlayer = 1;
     private PieceData activePiece = null;
-    private string[] moveRules = new string[] { "cannotMoveOffBoard" };
+    private string[] moveRules = new string[] { "cannotMoveOffBoard", "cannotMoveThroughFriends" };
 
 
     // Start is called before the first frame update
     void Start()
     {
-        piecesData = buildGamePieces("clockwise");
+        piecesData = buildGamePieces("test");
         board = buildGameBoard(w, h, piecesData);
         showBoard(board);
         showPieces(piecesData);
@@ -55,7 +55,7 @@ public class scr_controller_main : MonoBehaviour
             {
                 Destroy(piece);
             }
-            piecesData = buildGamePieces("clockwise");
+            piecesData = buildGamePieces("test");
             board = buildGameBoard(w, h, piecesData);
             showBoard(board);
             showPieces(piecesData);
@@ -143,8 +143,8 @@ public class scr_controller_main : MonoBehaviour
             case "standard":
                 boardArray = DefaultBoards.standard;
                 break;
-            case "clockwise":
-                boardArray = DefaultBoards.clockwise;
+            case "test":
+                boardArray = DefaultBoards.test;
                 break;
             default:
                 boardArray = DefaultBoards.standard;
@@ -173,6 +173,17 @@ public class scr_controller_main : MonoBehaviour
     /// <param name="board"></param>
     private void showBoard(SquareData[,] b)
     {
+        // destroy all squares and circles
+        // GameObject[] squares = GameObject.FindGameObjectsWithTag("square");
+        // foreach (GameObject square in squares)
+        // {
+        //     Destroy(square);
+        // }
+        GameObject[] circles = GameObject.FindGameObjectsWithTag("circle");
+        foreach (GameObject circle in circles)
+        {
+            Destroy(circle);
+        }
         for (int x = 0; x < b.GetLength(0); x++)
         {
             for (int y = 0; y < b.GetLength(1); y++)
@@ -185,6 +196,7 @@ public class scr_controller_main : MonoBehaviour
                 squareObject.transform.localScale = new Vector3(s.scale, s.scale, 1);
                 SpriteRenderer sr = squareObject.GetComponent<SpriteRenderer>();
                 sr.sprite = s.isWhite ? s.lightSquareSprite : s.darkSquareSprite;
+
             }
         }
     }
@@ -251,10 +263,12 @@ public class scr_controller_main : MonoBehaviour
 /// </summary>
     private void handleSquareClick()
     {
+        Debug.Log("click");
         Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
         if (hit.collider != null)
         {
+            Debug.Log("hit");
             scr_square_prefab squarePrefab = hit.collider.gameObject.GetComponent<scr_square_prefab>();
             SquareData squareData = squarePrefab.squareData;
             PieceData pieceData = squareData.pieceData;
@@ -305,12 +319,32 @@ public class scr_controller_main : MonoBehaviour
 
     private void setActivePiece(PieceData piece)
     {
+        // destroy all circles (available moves)
+        GameObject[] circles = GameObject.FindGameObjectsWithTag("circle");
+        foreach (GameObject circle in circles)
+        {
+            Destroy(circle);
+        }
         if (piece != null)
         {
             Debug.Log("Setting active piece to " + piece.pieceName);
             activePiece = piece;
+            Dictionary<string, PieceData> pieceDictionary = new Dictionary<string, PieceData>();
+            foreach (PieceData p in piecesData)
+            {
+                pieceDictionary[p.squareName] = p;
+            }
             List<List<int[]>> rawMoveset = piece.currentMoveset;
-            List<List<int[]>> validMoveset = MoveRules.applyRules(rawMoveset, moveRules);
+            List<List<int[]>> validMoveset = MoveRules.applyRules(piece, moveRules, pieceDictionary);
+            foreach (List<int[]> ray in validMoveset)
+            {
+                foreach (int[] move in ray)
+                {
+                    SquareData square = getSquareByNotation(SquareBuilder.getSquareName(move[0] - 1, move[1] - 1));
+                    Debug.Log("Setting square to available: " + square.squareName);
+                    square.setAvailable(true);
+                }
+            }
         } 
         else 
         {

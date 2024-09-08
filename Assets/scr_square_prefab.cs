@@ -9,8 +9,10 @@ public class scr_square_prefab : MonoBehaviour
 {
     public Sprite lightSquareSprite;
     public Sprite darkSquareSprite;
+    public Sprite circleSprite;
     public SquareData squareData;
     public TextController textController;
+    public bool isAvailable = false;
     // Start is called before the first frame update
     void Start()
     {
