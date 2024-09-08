@@ -11,13 +11,14 @@ public static class SquareBuilder
     bool isWhite,
     float scale,
     float[] a1Position,
+    PieceData pieceData,
     GameObject squarePrefab
   )  
   {
     float x = a1Position[0] + r * scale;
     float y = a1Position[1] + c * scale;
     string squareName = getSquareName(r, c);
-    return new SquareData(isWhite, squareName, r, c, x, y, scale, squarePrefab);
+    return new SquareData(isWhite, squareName, r, c, x, y, scale, pieceData, squarePrefab);
   }
 
   /// <summary>

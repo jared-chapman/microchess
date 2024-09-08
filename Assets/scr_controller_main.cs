@@ -13,13 +13,14 @@ public class scr_controller_main : MonoBehaviour
     private PieceData[] piecesData;
     public GameObject squarePrefab;
     public GameObject piecePrefab;
+    public TextController textController;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        board = buildGameBoard(w, h);
         piecesData = buildGamePieces("clockwise");
+        board = buildGameBoard(w, h, piecesData);
         showBoard(board);
         showPieces(piecesData);
         
@@ -50,8 +51,8 @@ public class scr_controller_main : MonoBehaviour
             {
                 Destroy(piece);
             }
-            board = buildGameBoard(w, h);
             piecesData = buildGamePieces("clockwise");
+            board = buildGameBoard(w, h, piecesData);
             showBoard(board);
             showPieces(piecesData);
         }
@@ -85,8 +86,15 @@ public class scr_controller_main : MonoBehaviour
     /// <param name="length"></param>
     /// <param name="width"></param>
     /// <returns></returns>
-    private SquareData[,] buildGameBoard(int width, int height)
+    private SquareData[,] buildGameBoard(int width, int height, PieceData[] piecesData = null)
     {
+        if (piecesData != null)
+        {
+            Debug.Log("debug" + piecesData[0].pieceName);
+        } else 
+        {
+            Debug.Log("no pieces data");
+        }
         SquareData[,] board = new SquareData[width, height];
         for (int x = 0; x < width; x++)
         {
@@ -100,10 +108,11 @@ public class scr_controller_main : MonoBehaviour
                     isWhite,
                     scale,
                     a1Position,
+                    piecesData != null ? piecesData[x * width + y] : null,
                     squarePrefab
 
                 );
-                board[x, y].printSquareData();
+                // board[x, y].printSquareData();
             }
         }
         return board;
@@ -134,7 +143,15 @@ public class scr_controller_main : MonoBehaviour
         PieceData[] piecesData = PieceBuilder.createPiecesData(boardArray);
         foreach (PieceData piece in piecesData)
         {
-            piece.printPieceData();
+            // find the square that the piece is on
+            // SquareData square = getSquareByNotation(piece.squareName);
+            // scr_square_prefab squarePrefab = getSquarePrefabByNotation(piece.squareName);
+            // if (squarePrefab == null)
+            {
+                // Debug.Log("Square prefab not found for " + piece.squareName);
+                // continue;
+            }
+            // squarePrefab.updatePieceData(piece);
         }
         return piecesData;
 
@@ -152,6 +169,9 @@ public class scr_controller_main : MonoBehaviour
             {
                 SquareData s = b[x, y];
                 GameObject squareObject = Instantiate(squarePrefab, new Vector3(s.position[0], s.position[1], 0), Quaternion.identity);
+                // get scr_square_prefab script from the squareObject
+                scr_square_prefab squareScript = squareObject.GetComponent<scr_square_prefab>();
+                squareScript.setSquareData(s);
                 squareObject.transform.localScale = new Vector3(s.scale, s.scale, 1);
                 SpriteRenderer sr = squareObject.GetComponent<SpriteRenderer>();
                 sr.sprite = s.isWhite ? s.lightSquareSprite : s.darkSquareSprite;
@@ -168,7 +188,7 @@ public class scr_controller_main : MonoBehaviour
     {
         foreach (PieceData piece in piecesData)
         {
-            Debug.Log(piece.coordinates[0] + " " + piece.coordinates[1]);
+            // Debug.Log(piece.coordinates[0] + " " + piece.coordinates[1]);
             if (piece.pieceName == "empty" || piece == null) continue;
             
             GameObject pieceObject = Instantiate(piecePrefab, new Vector3(piece.coordinates[0], piece.coordinates[1], 0), Quaternion.identity);
@@ -181,12 +201,36 @@ public class scr_controller_main : MonoBehaviour
 
     private SquareData getSquareByNotation(string squareNotation)
     {
+        if (board == null)
+        {
+            Debug.Log("Board is null");
+            return null;
+        }
         // accepts a string in the format of "a1" and returns the square object
         foreach (SquareData square in board)
         {
             if (square.squareName == squareNotation)
             {
+                // Debug.Log("Found square: " + square.squareName);
                 return square;
+            }
+        }
+        return null;
+    }
+
+    private scr_square_prefab getSquarePrefabByNotation(string squareNotation)
+    {
+        // accepts a string in the format of "a1" and returns the square object
+        foreach (GameObject square in GameObject.FindGameObjectsWithTag("square"))
+        {
+            if (square.GetComponent<scr_square_prefab>().squareData == null)
+            {
+                return null;
+            }
+            if (square.GetComponent<scr_square_prefab>().squareData.squareName == squareNotation)
+            {
+                // Debug.Log("Found square: " + square.GetComponent<scr_square_prefab>().squareData.squareName);
+                return square.GetComponent<scr_square_prefab>();
             }
         }
         return null;

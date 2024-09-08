@@ -15,13 +15,14 @@ public class SquareData
   public Sprite lightSquareSprite;
   public Sprite darkSquareSprite;
  
-  public SquareData(bool isWhite, string squareName, int r, int c, float x, float y, float scale, GameObject squarePrefab)
+  public SquareData(bool isWhite, string squareName, int r, int c, float x, float y, float scale, PieceData pieceData, GameObject squarePrefab)
   {
     this.isWhite = isWhite;
     this.squareName = squareName;
     this.coordinates = new int[] { r, c };
     this.position = new float[] { x, y };
     this.scale = scale;
+    this.pieceData = pieceData;
     this.lightSquareSprite = squarePrefab.GetComponent<scr_square_prefab>().lightSquareSprite;
     this.darkSquareSprite = squarePrefab.GetComponent<scr_square_prefab>().darkSquareSprite;
   }
